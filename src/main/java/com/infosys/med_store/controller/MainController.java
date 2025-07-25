@@ -3,6 +3,7 @@ package com.infosys.med_store.controller;
 import java.util.List;
 import java.util.Scanner;
 
+import com.infosys.med_store.dao.AdminDao;
 import com.infosys.med_store.dao.CustomerDao;
 import com.infosys.med_store.dao.MedicineDao;
 import com.infosys.med_store.dao.OrderDao;
@@ -26,6 +27,7 @@ public class MainController {
 		CustomerDao cd = new CustomerDao();
 		OrderDao od = new OrderDao();
 		MedicineDao md = new MedicineDao();
+		AdminDao ad = new AdminDao();
 		
 		//scanner class
 		Scanner sc = new Scanner(System.in);
@@ -43,7 +45,7 @@ public class MainController {
 			
 			switch(ch1) {
 			case 1:
-				if(la.loginadmin()) {
+				if(la.loginadmin(ad, sc)) {
 					int ch2 =0;
 					System.out.println("\n=== Admin Loggen In ====");
 					
@@ -68,7 +70,7 @@ public class MainController {
 						case 1:
 							MedicineInsert mi = new MedicineInsert();
 							if(mi.addmed(sc,md)) {
-								System.out.println("Medicine Added Sucessfully");
+								System.out.println("Medicine Added Successfully");
 							}else {
 								System.out.println("Medicine Not Added");
 							}
@@ -79,7 +81,7 @@ public class MainController {
 						case 3:
 							UpdateStock up = new UpdateStock();
 							if(up.updateStock(sc,md)) {
-								System.out.println("Quantity Updated Sucessfully");
+								System.out.println("Quantity Updated Successfully");
 							}else {
 								System.out.println("No Such Medicine Exist In Stock");
 							}
@@ -88,7 +90,7 @@ public class MainController {
 							System.out.println("Enter the Id Of Medicine to be deleted");
 							int id=sc.nextInt(); sc.nextLine();
 							if(md.deleteMed(id)) {
-								System.out.println("Medicine Deleted Sucessfully");
+								System.out.println("Medicine Deleted Successfully");
 							}
 							else {
 								System.out.println("Invalid Medicine Id or System Error");
@@ -110,7 +112,7 @@ public class MainController {
 							break;
 						case 6:
 							if(uos.updateStatus(sc,od)) {
-								System.out.println("Order Status Updates Sucessfully");
+								System.out.println("Order Status Updates Successfully");
 							}else {
 								System.out.println("No Such Order or Invalid Input");
 							}
@@ -129,7 +131,7 @@ public class MainController {
 				Customer LoggedinCustomer = lc.loginCustomer(sc,cd);
 				if(LoggedinCustomer!=null) {
 					
-					System.out.println("==== User Loggedin ====");
+					System.out.println("==== User Logged In ====");
 					int ch3 = 0;
 					
 					while(ch3!=5) {
@@ -197,7 +199,7 @@ public class MainController {
 			case 3:
 				Customer customer=new InsertCustomer().insertCustomer(sc, cd);
 				if(customer!=null) {
-					System.out.println("User Added Sucessfully");
+					System.out.println("User Added Successfully");
 				}else {
 					System.out.println("Something Went Wrong;");
 				}

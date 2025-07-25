@@ -7,10 +7,8 @@ import com.infosys.med_store.entity.Admin;
 
 public class LoginAdmin {
 	
-	public boolean loginadmin() {
+	public boolean loginadmin(AdminDao ad, Scanner sc) {
 		Admin admin = new Admin();
-		AdminDao ad= new AdminDao();
-		Scanner sc = new Scanner(System.in);
 		
 		System.out.println("Enter the username");
 		String usern = sc.nextLine();
