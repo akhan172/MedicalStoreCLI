@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.infosys.med_store.ListPair;
 import com.infosys.med_store.dao.CustomerDao;
 import com.infosys.med_store.dao.MedicineDao;
 import com.infosys.med_store.dao.OrderDao;
@@ -19,14 +20,13 @@ import com.infosys.med_store.entity.OrderItem;
 public class PlaceOrder {
 	public Order placeOd(CustomerDao cd, MedicineDao md, Customer customer,Scanner sc) {
 		//getting customer
-		Customer cus = cd.getCustomer(1);
+		Customer cus = cd.getCustomer(customer.getId());
 		
-		//user input of Med Id with quantity
+		//user input of Med ID with quantity
 		Map<Integer, Integer> mp = new HashMap<>();
 		System.out.println("Enter the number of Items you want to Order");
 		int num=sc.nextInt();sc.nextLine();
-		
-		System.out.println("Enter medicine name");
+
 		for(int i=0; i<num; i++) {
 			Medicine medi=new MedicineByName().getByName(sc,md);
 			
@@ -43,41 +43,54 @@ public class PlaceOrder {
 		}
 		
 		//Checking all medicines are in stock and storing them in a list
-		List<Medicine> meds=md.checkStock(mp);
+		ListPair<Medicine, Medicine> medpair=md.checkStock(mp);
+		List<Medicine> meds=medpair.getList1();
+		List<Medicine> notMeds=medpair.getList2();
 		
 		if(!meds.isEmpty()) {
 			
-			List<OrderItem> Oitems = new ArrayList<>();
-			Order order = new Order();
-			int amt=0;
-			for(Medicine med:meds) {
-				System.out.println(med.toString());
-				OrderItem oi = new OrderItem();
-				oi.setMed(med);
-				oi.setQuantity(mp.get(med.getId()));
-				oi.setSubTotal(med.getPrice()*mp.get(med.getId()));
-				oi.setOrder(order);
-				Oitems.add(oi);
-				amt+=oi.getSubTotal();
-			}
-			order.setAmount(amt);
-			order.setItems(Oitems);
-			order.setStatus(Status.PLACED);
-			order.setCustomer(cus);
-			order.setOrderDate(LocalDate.now());
-			OrderDao od = new OrderDao();
-			Order o1 = od.saveOrder(order);
-			if(o1!=null) {
-				for(Medicine m:meds) {
-					m.setQuantity(m.getQuantity()-mp.get(m.getId()));
+			if(!notMeds.isEmpty()){
+				System.out.println("Few Medicines are Out of stock");
+				for(Medicine medicine:notMeds){
+					System.out.println("Name: "+medicine.getName()+ "\tAvailable quantity: "+medicine.getQuantity());
 				}
-				if(md.updateQuantity(meds)) {
-					return order;
-				}else {
-					return null;
+
+				System.out.println("Enter 1 to continue");
+				int check = sc.nextInt();sc.nextLine();
+				if(check==1) {
+					List<OrderItem> Oitems = new ArrayList<>();
+					Order order = new Order();
+					int amt = 0;
+					for (Medicine med : meds) {
+						System.out.println(med.toString());
+						OrderItem oi = new OrderItem();
+						oi.setMed(med);
+						oi.setQuantity(mp.get(med.getId()));
+						oi.setSubTotal(med.getPrice() * mp.get(med.getId()));
+						oi.setOrder(order);
+						Oitems.add(oi);
+						amt += oi.getSubTotal();
+					}
+					order.setAmount(amt);
+					order.setItems(Oitems);
+					order.setStatus(Status.PLACED);
+					order.setCustomer(cus);
+					order.setOrderDate(LocalDate.now());
+					OrderDao od = new OrderDao();
+					Order o1 = od.saveOrder(order);
+					if (o1 != null) {
+						for (Medicine m : meds) {
+							m.setQuantity(m.getQuantity() - mp.get(m.getId()));
+						}
+						if (md.updateQuantity(meds)) {
+							return order;
+						} else {
+							return null;
+						}
+					}
+
 				}
 			}
-			
 		}else {
 			System.out.println("selected medicine is out of Stock");
 		}

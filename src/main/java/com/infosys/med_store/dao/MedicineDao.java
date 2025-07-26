@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.infosys.med_store.ListPair;
 import com.infosys.med_store.entity.Medicine;
 
 import jakarta.persistence.EntityManager;
@@ -102,18 +103,19 @@ public class MedicineDao {
 		}else return null;
 	}
 	// cheking all orderitems are in stock
-	public List<Medicine> checkStock(Map<Integer, Integer> mp) {
+	public ListPair<Medicine,Medicine> checkStock(Map<Integer, Integer> mp) {
 		List<Medicine> meds = new ArrayList<>();
+		List<Medicine> unAvailMeds = new ArrayList<>();
 		for(Integer id: mp.keySet()) {
 			int quant=mp.get(id);
 			Medicine med = checkmed(id, quant);
 			if(med!=null) {
 				meds.add(med);
 			}else {
-				return null;
+				unAvailMeds.add(getMedById(id));
 			}
 		}
-		return meds;
+		return new ListPair<>(meds, unAvailMeds);
 	}
 	// updating medicine quantity after order is placed
 	public boolean updateQuantity(List<Medicine> meds) {
